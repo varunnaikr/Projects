@@ -1,0 +1,61 @@
+int irl = 2;
+int irr = 3;
+int ml1 = 4;
+int ml2 = 5;
+int mr1 = 6;
+int mr2 = 7;
+int ena = 9;
+int enb = 10;
+
+int irright, irleft;
+
+void setup() {
+  pinMode(irl, INPUT);
+  pinMode(irr, INPUT);
+  pinMode(ml1, OUTPUT);
+  pinMode(ml2, OUTPUT);
+  pinMode(mr1, OUTPUT);
+  pinMode(mr2, OUTPUT);
+  pinMode(ena, OUTPUT);
+  pinMode(enb, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  irleft = digitalRead(irl);
+  irright = digitalRead(irr);
+
+  if (irleft == LOW && irright == LOW) {
+    moveForward(200, 200);
+    Serial.println("FORWARD");
+  } else if (irleft == HIGH && irright == LOW) {
+    moveForward(180, 100);
+    Serial.println("RIGHT");
+  } else if (irleft == LOW && irright == HIGH) {
+    moveForward(100, 180);
+    Serial.println("LEFT");
+  } else {
+    stopMotors();
+    Serial.println("STOP");
+  }
+
+  delay(100);
+}
+
+void moveForward(int speedL, int speedR) {
+  digitalWrite(ml1, HIGH);
+  digitalWrite(ml2, LOW);
+  digitalWrite(mr1, HIGH);
+  digitalWrite(mr2, LOW);
+  analogWrite(ena, speedL);
+  analogWrite(enb, speedR);
+}
+
+void stopMotors() {
+  digitalWrite(ml1, LOW);
+  digitalWrite(ml2, LOW);
+  digitalWrite(mr1, LOW);
+  digitalWrite(mr2, LOW);
+  analogWrite(ena, 0);
+  analogWrite(enb, 0);
+}
