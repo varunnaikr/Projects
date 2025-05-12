@@ -1,15 +1,15 @@
-# Smart Dustbin with Speech Feedback & Fullness Prediction 🗑️🧠🔊
+Smart Dustbin with Speech Feedback & Fullness Prediction 🗑️🧠🔊
 
 An intelligent dustbin system that opens automatically, speaks to users, detects trash level, and predicts when it will be full based on usage patterns.
 
-## 🔧 Features
+ 🔧 Features
 - Auto lid using IR sensor + servo motor
 - Trash level detection with ultrasonic sensor
 - Voice feedback using DFPlayer Mini
 - Fullness prediction using RTC-based logging
 - Expandable to cloud/Bluetooth
 
-## 🧰 Components
+ 🧰 Components
 - Arduino UNO / ESP32
 - Ultrasonic Sensor (HC-SR04)
 - IR Sensor
@@ -18,15 +18,15 @@ An intelligent dustbin system that opens automatically, speaks to users, detects
 - DS3231 RTC Module
 - Wires, breadboard, 5V power supply
 
-## ⚙️ Circuit Diagram
+ ⚙️ Circuit Diagram
 *(Insert circuit image here)*
 
-## 💬 Speech Samples
+ 💬 Speech Samples
 - `0001.mp3`: Welcome
 - `0002.mp3`: Almost Full
 - `0003.mp3`: Thank You
 
-## 📈 Fullness Prediction
+📈 Fullness Prediction
 System calculates trash fill rate over time using timestamps and predicts when the bin will be 100% full.
 
 ## 🧪 How to Use
