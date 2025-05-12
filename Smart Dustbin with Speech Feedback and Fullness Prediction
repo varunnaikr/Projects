@@ -1,7 +1,7 @@
 #include <Servo.h>
 #include <SoftwareSerial.h>
 
-// Pins
+
 #define IR_SENSOR 2
 #define ECHO_PIN 6
 #define TRIG_PIN 7
