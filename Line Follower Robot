@@ -6,9 +6,7 @@ int mr1 = 6;
 int mr2 = 7;
 int ena = 9;
 int enb = 10;
-
 int irright, irleft;
-
 void setup() {
   pinMode(irl, INPUT);
   pinMode(irr, INPUT);
