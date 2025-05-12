@@ -29,13 +29,13 @@ An intelligent dustbin system that opens automatically, speaks to users, detects
 📈 Fullness Prediction
 System calculates trash fill rate over time using timestamps and predicts when the bin will be 100% full.
 
-## 🧪 How to Use
+🧪 How to Use
 1. Upload `smart_dustbin.ino`
 2. Add voice files to DFPlayer SD
 3. Connect components as per diagram
 4. Power up and test
 
-## 📦 Future Enhancements
+ 📦 Future Enhancements
 - Mobile alerts via Bluetooth
 - IoT support (Google Sheets, Blynk, Firebase)
 - E-paper display for status
