@@ -1,0 +1,65 @@
+#include <Servo.h>
+#include <SoftwareSerial.h>
+
+// Pins
+#define IR_SENSOR 2
+#define ECHO_PIN 6
+#define TRIG_PIN 7
+#define SERVO_PIN 9
+#define RX 10
+#define TX 11
+
+Servo lid;
+SoftwareSerial mp3(RX, TX); // DFPlayer Mini
+
+void setup() {
+  pinMode(IR_SENSOR, INPUT);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  
+  lid.attach(SERVO_PIN);
+  mp3.begin(9600);
+  
+  speak(1); // Welcome message
+}
+
+void loop() {
+  if (digitalRead(IR_SENSOR) == LOW) {
+    openLid();
+    delay(2000);
+    closeLid();
+    int level = getTrashLevel();
+    if (level > 70) speak(2); // Almost full
+    else speak(3); // Thank you
+    delay(1000);
+  }
+}
+
+void openLid() {
+  lid.write(90);
+}
+
+void closeLid() {
+  lid.write(0);
+}
+
+int getTrashLevel() {
+  digitalWrite(TRIG_PIN, LOW); delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH); delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  long duration = pulseIn(ECHO_PIN, HIGH);
+  int distance = duration * 0.034 / 2;
+  int level = map(distance, 10, 30, 100, 0); // Adjust range
+  return constrain(level, 0, 100);
+}
+
+void speak(int clip) {
+  mp3.write(0x7E);
+  mp3.write(0xFF);
+  mp3.write(0x06);
+  mp3.write(0x03);
+  mp3.write(0x00);
+  mp3.write(0x00);
+  mp3.write(clip); // Clip number
+  mp3.write(0xEF);
+}
