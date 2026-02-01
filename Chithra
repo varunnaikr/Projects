@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chithra 💕 Varun</title>
+
+<!-- WhatsApp / Social Preview -->
+<meta property="og:title" content="Chithra 💕 Varun">
+<meta property="og:description" content="Chithra, will you be my Valentine? 💖">
+<meta property="og:image" content="https://your-site-link/chithra-preview.jpg">
+<meta property="og:url" content="https://your-site-link">
+<meta property="og:type" content="website">
+
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #ffb6c1, #f7cfd8);
+    font-family: "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .card {
+    background: white;
+    padding: 28px 24px;
+    border-radius: 22px;
+    text-align: center;
+    width: 330px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+    animation: instaPop 0.8s ease;
+    position: relative;
+  }
+
+  @keyframes instaPop {
+    from { transform: scale(0.6); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .emoji {
+    font-size: 60px;
+    animation: float 2s infinite ease-in-out;
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .photo {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 10px auto 15px;
+    border: 4px solid #ff4d6d;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  }
+
+  h2 {
+    font-weight: 600;
+    margin-bottom: 25px;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    position: relative;
+    height: 60px;
+  }
+
+  button {
+    border: none;
+    padding: 12px 28px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+
+  .yes {
+    background: #ff4d6d;
+    color: white;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255,77,109,0.6); }
+    70% { box-shadow: 0 0 0 15px rgba(255,77,109,0); }
+    100% { box-shadow: 0 0 0 0 rgba(255,77,109,0); }
+  }
+
+  .no {
+    background: #ddd;
+    position: absolute;
+    transition: transform 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+  }
+
+  .footer {
+    margin-top: 15px;
+    font-size: 12px;
+    color: gray;
+  }
+
+  .love-text {
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    font-size: 36px;
+    font-weight: bold;
+    color: #ff2f6d;
+    opacity: 0;
+    animation: loveReveal 2s forwards;
+    z-index: 10;
+  }
+
+  @keyframes loveReveal {
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  .heart {
+    position: fixed;
+    font-size: 24px;
+    animation: fall linear forwards;
+  }
+
+  @keyframes fall {
+    from { transform: translateY(-50px); opacity: 1; }
+    to { transform: translateY(100vh); opacity: 0; }
+  }
+</style>
+</head>
+
+<body>
+
+<audio autoplay loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
+<div class="card">
+  <div class="emoji">🐻‍❣️</div>
+
+  <!-- HER PHOTO -->
+  <img src="chithra.jpg" class="photo" alt="Chithra">
+
+  <h2>Chithra will you be my valentine?</h2>
+
+  <div class="buttons">
+    <button class="yes" onclick="yesClicked()">Yes</button>
+    <button class="no" id="noBtn">No</button>
+  </div>
+
+  <div class="footer">you literally can’t say no 😌</div>
+</div>
+
+<script>
+  const noBtn = document.getElementById("noBtn");
+
+  function moveNoSmoothly() {
+    const padding = 20;
+    const btnWidth = noBtn.offsetWidth;
+    const btnHeight = noBtn.offsetHeight;
+
+    const maxX = window.innerWidth - btnWidth - padding;
+    const maxY = window.innerHeight - btnHeight - padding;
+
+    const x = Math.random() * maxX;
+    const y = Math.random() * maxY;
+
+    noBtn.style.transform = `translate(${x}px, ${y}px)`;
+  }
+
+  // Desktop
+  noBtn.addEventListener("mouseenter", moveNoSmoothly);
+
+  // Mobile
+  noBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    moveNoSmoothly();
+  });
+
+  function yesClicked() {
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      `<div class="love-text">Chithra 💕 Varun</div>`
+    );
+    heartRain();
+  }
+
+  function heartRain() {
+    for (let i = 0; i < 40; i++) {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.innerHTML = "💖";
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.animationDuration = (2 + Math.random() * 2) + "s";
+      document.body.appendChild(heart);
+
+      setTimeout(() => heart.remove(), 3000);
+    }
+  }
+</script>
+
+</body>
+</html>
