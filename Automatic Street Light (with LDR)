@@ -1,18 +1,44 @@
-int ldrPin = A0;
-int ledPin = 9;
+const int LDR_PIN = A0;
+const int LED_PIN = 9;
+
+// Hysteresis prevents rapid on/off flicker near the threshold.
+const int TURN_ON_THRESHOLD = 450;
+const int TURN_OFF_THRESHOLD = 550;
+
+bool ledOn = false;
+
+int readSmoothedLdr() {
+  long sum = 0;
+  const int samples = 10;
+
+  for (int i = 0; i < samples; i++) {
+    sum += analogRead(LDR_PIN);
+    delay(5);
+  }
+
+  return sum / samples;
+}
 
 void setup() {
-  pinMode(ledPin, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
   Serial.begin(9600);
 }
 
 void loop() {
-  int ldrValue = analogRead(ldrPin);
-  if (ldrValue < 500) {
-    digitalWrite(ledPin, HIGH);
-  } else {
-    digitalWrite(ledPin, LOW);
+  int ldrValue = readSmoothedLdr();
+
+  if (!ledOn && ldrValue < TURN_ON_THRESHOLD) {
+    ledOn = true;
+  } else if (ledOn && ldrValue > TURN_OFF_THRESHOLD) {
+    ledOn = false;
   }
-  Serial.println(ldrValue);
-  delay(500);
+
+  digitalWrite(LED_PIN, ledOn ? HIGH : LOW);
+
+  Serial.print("LDR: ");
+  Serial.print(ldrValue);
+  Serial.print(" | LED: ");
+  Serial.println(ledOn ? "ON" : "OFF");
+
+  delay(200);
 }
