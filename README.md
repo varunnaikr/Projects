@@ -39,3 +39,17 @@ System calculates trash fill rate over time using timestamps and predicts when t
 - Mobile alerts via Bluetooth
 - IoT support (Google Sheets, Blynk, Firebase)
 - E-paper display for status
+
+---
+
+## Additional Projects in this Repo
+- `Clock`
+- `Line Follower Robot`
+- `Automatic Street Light (with LDR)`
+- `Soil Moisture Monitoring System` (new)
+
+### Soil Moisture Monitoring System
+Path: `Soil Moisture Monitoring System/`
+- Arduino controller: `soil_moisture_monitor.ino`
+- Dataset: `data/soil_moisture_readings.csv`
+- Data analysis script: `analyze_soil_moisture.py`
