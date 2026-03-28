@@ -5,30 +5,48 @@
 RTC_DS3231 rtc;
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
+void print2Digits(uint8_t value) {
+  if (value < 10) lcd.print('0');
+  lcd.print(value);
+}
+
 void setup() {
+  Wire.begin();
   lcd.init();
   lcd.backlight();
-  Wire.begin();
-  rtc.begin();
+
+  if (!rtc.begin()) {
+    lcd.setCursor(0, 0);
+    lcd.print("RTC not found");
+    while (true) {
+      delay(1000);
+    }
+  }
+
+  // If RTC lost power, set to compile time so clock starts with a valid value.
+  if (rtc.lostPower()) {
+    rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  }
 }
 
 void loop() {
   DateTime now = rtc.now();
-  
+
   lcd.setCursor(0, 0);
   lcd.print("Time: ");
-  lcd.print(now.hour());
-  lcd.print(":");
-  lcd.print(now.minute());
-  lcd.print(":");
-  lcd.print(now.second());
+  print2Digits(now.hour());
+  lcd.print(':');
+  print2Digits(now.minute());
+  lcd.print(':');
+  print2Digits(now.second());
+  lcd.print("   "); // Clear trailing chars.
 
   lcd.setCursor(0, 1);
   lcd.print("Date: ");
-  lcd.print(now.day());
-  lcd.print("/");
-  lcd.print(now.month());
-  lcd.print("/");
+  print2Digits(now.day());
+  lcd.print('/');
+  print2Digits(now.month());
+  lcd.print('/');
   lcd.print(now.year());
 
   delay(1000);

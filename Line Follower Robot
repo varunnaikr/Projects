@@ -1,59 +1,77 @@
-int irl = 2;
-int irr = 3;
-int ml1 = 4;
-int ml2 = 5;
-int mr1 = 6;
-int mr2 = 7;
-int ena = 9;
-int enb = 10;
-int irright, irleft;
+const int IR_LEFT_PIN = 2;
+const int IR_RIGHT_PIN = 3;
+
+const int MOTOR_LEFT_IN1 = 4;
+const int MOTOR_LEFT_IN2 = 5;
+const int MOTOR_RIGHT_IN1 = 6;
+const int MOTOR_RIGHT_IN2 = 7;
+
+const int ENA = 9;
+const int ENB = 10;
+
+const int SPEED_FORWARD = 185;
+const int SPEED_TURN_FAST = 185;
+const int SPEED_TURN_SLOW = 95;
+
+void setMotorDirectionForward() {
+  digitalWrite(MOTOR_LEFT_IN1, HIGH);
+  digitalWrite(MOTOR_LEFT_IN2, LOW);
+  digitalWrite(MOTOR_RIGHT_IN1, HIGH);
+  digitalWrite(MOTOR_RIGHT_IN2, LOW);
+}
+
+void setMotorSpeed(int leftSpeed, int rightSpeed) {
+  analogWrite(ENA, constrain(leftSpeed, 0, 255));
+  analogWrite(ENB, constrain(rightSpeed, 0, 255));
+}
+
+void stopMotors() {
+  digitalWrite(MOTOR_LEFT_IN1, LOW);
+  digitalWrite(MOTOR_LEFT_IN2, LOW);
+  digitalWrite(MOTOR_RIGHT_IN1, LOW);
+  digitalWrite(MOTOR_RIGHT_IN2, LOW);
+  setMotorSpeed(0, 0);
+}
+
 void setup() {
-  pinMode(irl, INPUT);
-  pinMode(irr, INPUT);
-  pinMode(ml1, OUTPUT);
-  pinMode(ml2, OUTPUT);
-  pinMode(mr1, OUTPUT);
-  pinMode(mr2, OUTPUT);
-  pinMode(ena, OUTPUT);
-  pinMode(enb, OUTPUT);
+  pinMode(IR_LEFT_PIN, INPUT);
+  pinMode(IR_RIGHT_PIN, INPUT);
+
+  pinMode(MOTOR_LEFT_IN1, OUTPUT);
+  pinMode(MOTOR_LEFT_IN2, OUTPUT);
+  pinMode(MOTOR_RIGHT_IN1, OUTPUT);
+  pinMode(MOTOR_RIGHT_IN2, OUTPUT);
+
+  pinMode(ENA, OUTPUT);
+  pinMode(ENB, OUTPUT);
+
   Serial.begin(9600);
 }
 
 void loop() {
-  irleft = digitalRead(irl);
-  irright = digitalRead(irr);
+  int leftSensor = digitalRead(IR_LEFT_PIN);
+  int rightSensor = digitalRead(IR_RIGHT_PIN);
 
-  if (irleft == LOW && irright == LOW) {
-    moveForward(200, 200);
+  // Typical IR modules: LOW = line detected, HIGH = no line.
+  if (leftSensor == LOW && rightSensor == LOW) {
+    setMotorDirectionForward();
+    setMotorSpeed(SPEED_FORWARD, SPEED_FORWARD);
     Serial.println("FORWARD");
-  } else if (irleft == HIGH && irright == LOW) {
-    moveForward(180, 100);
+  } else if (leftSensor == HIGH && rightSensor == LOW) {
+    // Robot drifted left of track -> steer right.
+    setMotorDirectionForward();
+    setMotorSpeed(SPEED_TURN_FAST, SPEED_TURN_SLOW);
     Serial.println("RIGHT");
-  } else if (irleft == LOW && irright == HIGH) {
-    moveForward(100, 180);
+  } else if (leftSensor == LOW && rightSensor == HIGH) {
+    // Robot drifted right of track -> steer left.
+    setMotorDirectionForward();
+    setMotorSpeed(SPEED_TURN_SLOW, SPEED_TURN_FAST);
     Serial.println("LEFT");
   } else {
+    // Line is lost by both sensors.
     stopMotors();
-    Serial.println("STOP");
+    Serial.println("STOP/LOST");
   }
 
-  delay(100);
-}
-
-void moveForward(int speedL, int speedR) {
-  digitalWrite(ml1, HIGH);
-  digitalWrite(ml2, LOW);
-  digitalWrite(mr1, HIGH);
-  digitalWrite(mr2, LOW);
-  analogWrite(ena, speedL);
-  analogWrite(enb, speedR);
-}
-
-void stopMotors() {
-  digitalWrite(ml1, LOW);
-  digitalWrite(ml2, LOW);
-  digitalWrite(mr1, LOW);
-  digitalWrite(mr2, LOW);
-  analogWrite(ena, 0);
-  analogWrite(enb, 0);
+  delay(50);
 }

@@ -1,65 +1,130 @@
 #include <Servo.h>
 #include <SoftwareSerial.h>
 
+const int IR_SENSOR_PIN = 2;
+const int ECHO_PIN = 6;
+const int TRIG_PIN = 7;
+const int SERVO_PIN = 9;
+const int MP3_RX_PIN = 10;
+const int MP3_TX_PIN = 11;
 
-#define IR_SENSOR 2
-#define ECHO_PIN 6
-#define TRIG_PIN 7
-#define SERVO_PIN 9
-#define RX 10
-#define TX 11
+const int LID_OPEN_ANGLE = 90;
+const int LID_CLOSED_ANGLE = 0;
+
+const unsigned long LID_OPEN_MS = 2000;
+const unsigned long TRIGGER_COOLDOWN_MS = 2500;
 
 Servo lid;
-SoftwareSerial mp3(RX, TX); // DFPlayer Mini
+SoftwareSerial mp3(MP3_RX_PIN, MP3_TX_PIN); // DFPlayer Mini
 
-void setup() {
-  pinMode(IR_SENSOR, INPUT);
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
-  
-  lid.attach(SERVO_PIN);
-  mp3.begin(9600);
-  
-  speak(1); // Welcome message
+unsigned long lastTriggerTime = 0;
+
+void sendDFPlayerCommand(uint8_t command, uint16_t argument) {
+  // 10-byte DFPlayer frame with checksum.
+  uint8_t packet[10] = {
+    0x7E, 0xFF, 0x06, command, 0x00,
+    (uint8_t)(argument >> 8),
+    (uint8_t)(argument & 0xFF),
+    0x00, 0x00,
+    0xEF
+  };
+
+  uint16_t checksum = 0;
+  for (int i = 1; i < 7; i++) checksum += packet[i];
+  checksum = 0 - checksum;
+  packet[7] = (uint8_t)(checksum >> 8);
+  packet[8] = (uint8_t)(checksum & 0xFF);
+
+  for (int i = 0; i < 10; i++) {
+    mp3.write(packet[i]);
+  }
+
+  delay(100);
 }
 
-void loop() {
-  if (digitalRead(IR_SENSOR) == LOW) {
-    openLid();
-    delay(2000);
-    closeLid();
-    int level = getTrashLevel();
-    if (level > 70) speak(2); // Almost full
-    else speak(3); // Thank you
-    delay(1000);
-  }
+void speakTrack(uint16_t trackNumber) {
+  // Command 0x03 = play track by index.
+  sendDFPlayerCommand(0x03, trackNumber);
+}
+
+void setVolume(uint8_t level) {
+  if (level > 30) level = 30;
+  sendDFPlayerCommand(0x06, level);
 }
 
 void openLid() {
-  lid.write(90);
+  lid.write(LID_OPEN_ANGLE);
 }
 
 void closeLid() {
-  lid.write(0);
+  lid.write(LID_CLOSED_ANGLE);
 }
 
-int getTrashLevel() {
-  digitalWrite(TRIG_PIN, LOW); delayMicroseconds(2);
-  digitalWrite(TRIG_PIN, HIGH); delayMicroseconds(10);
+int getTrashLevelPercent() {
   digitalWrite(TRIG_PIN, LOW);
-  long duration = pulseIn(ECHO_PIN, HIGH);
-  int distance = duration * 0.034 / 2;
-  int level = map(distance, 10, 30, 100, 0); // Adjust range
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  long duration = pulseIn(ECHO_PIN, HIGH, 30000); // Timeout ~5m range.
+  if (duration == 0) return -1;
+
+  int distanceCm = duration * 0.034 / 2;
+  // Tune 10..30 cm according to your bin geometry.
+  int level = map(distanceCm, 30, 10, 0, 100);
   return constrain(level, 0, 100);
 }
 
-void speak(int clip) {
-  mp3.write(0x7E);
-  mp3.write(0xFF);
-  mp3.write(0x06);
-  mp3.write(0x03);
-  mp3.write(0x00);
-  mp3.write(0x00);
-  mp3.write(clip); // Clip number
-  mp3.write(0xEF);
+bool objectDetected() {
+  // Common IR obstacle sensors are active LOW.
+  return digitalRead(IR_SENSOR_PIN) == LOW;
+}
+
+void setup() {
+  pinMode(IR_SENSOR_PIN, INPUT);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+
+  Serial.begin(9600);
+  mp3.begin(9600);
+
+  lid.attach(SERVO_PIN);
+  closeLid();
+
+  delay(500);
+  setVolume(22);
+  speakTrack(1); // Welcome message
+}
+
+void loop() {
+  unsigned long now = millis();
+
+  if (!objectDetected()) {
+    delay(60);
+    return;
+  }
+
+  if (now - lastTriggerTime < TRIGGER_COOLDOWN_MS) {
+    delay(60);
+    return;
+  }
+
+  lastTriggerTime = now;
+
+  openLid();
+  delay(LID_OPEN_MS);
+  closeLid();
+
+  int level = getTrashLevelPercent();
+  Serial.print("Fill level (%): ");
+  Serial.println(level);
+
+  if (level >= 70) {
+    speakTrack(2); // Almost full
+  } else {
+    speakTrack(3); // Thank you
+  }
+
+  delay(200);
 }
